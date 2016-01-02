@@ -7,12 +7,14 @@ package org.mj.revindexer;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 import com.mongodb.MongoClient;
+import com.mongodb.BasicDBList;
 import com.mongodb.Block;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.FindIterable;
@@ -101,8 +103,21 @@ public class RevIndexer {
 				@Override
 				public void apply(final Document document) {
 					
+					String docId = document.getString("doc_id");
+					BasicDBList wordCountList = (BasicDBList) document.get("word_count");
 					
-					revIndexDB.getCollection("Word_DocId").insertOne(new Document().append("word", value));
+					for (String word : wordCountList.keySet()) {
+						
+						if () {
+							revIndexDB.getCollection("Word_DocId").insertOne(new Document().append("word", word)
+									.append("word_count_in_docId", Arrays.asList()));
+						}
+						
+						revIndexDB.getCollection("Word_DocId").updateOne(new Document("word", word), 
+								new Document("$push", new Document(docId, wordCountList.get(word).toString())));
+						
+					}
+					
 				}
 			});
 			
