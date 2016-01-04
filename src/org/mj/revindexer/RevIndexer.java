@@ -108,7 +108,7 @@ public class RevIndexer {
 					
 					for (String word : wordCountList.keySet()) {
 						
-						if () {
+						if (!isWordInRevIndexDB(word)) {
 							revIndexDB.getCollection("Word_DocId").insertOne(new Document().append("word", word)
 									.append("word_count_in_docId", Arrays.asList()));
 						}
@@ -125,8 +125,22 @@ public class RevIndexer {
 			
 		} catch (Exception e) {
 			
+			logger.error("Error from functio start()");
+			logger.error(e.getMessage());
+			shutDown();
 		}
 		
+	}
+	
+	
+	/**
+	 * 
+	 * Test if the document with word is already created
+	 * @param word
+	 * @return
+	 */
+	private boolean isWordInRevIndexDB(String word) {
+		return revIndexDB.getCollection("Word_DocId").find(new Document("word", word)).limit(1).iterator().hasNext();
 	}
 
 }
