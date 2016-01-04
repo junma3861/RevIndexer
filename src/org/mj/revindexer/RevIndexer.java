@@ -5,13 +5,11 @@
 
 package org.mj.revindexer;
 
-import java.util.List;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.HashMap;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
+
+
 
 import com.mongodb.MongoClient;
 import com.mongodb.BasicDBList;
@@ -103,10 +101,14 @@ public class RevIndexer {
 				@Override
 				public void apply(final Document document) {
 					
-					String docId = document.getString("doc_id");
-					BasicDBList wordCountList = (BasicDBList) document.get("word_count");
+					String docId = document.getInteger("doc_id").toString();
 					
-					for (String word : wordCountList.keySet()) {
+					ArrayList<Document> wordCountList = (ArrayList<Document>) document.get("word_count");
+					
+					
+					for (Document item : wordCountList) {
+						
+						String word = item.keySet().iterator().next();
 						
 						if (!isWordInRevIndexDB(word)) {
 							revIndexDB.getCollection("Word_DocId").insertOne(new Document().append("word", word)
@@ -114,7 +116,7 @@ public class RevIndexer {
 						}
 						
 						revIndexDB.getCollection("Word_DocId").updateOne(new Document("word", word), 
-								new Document("$push", new Document(docId, wordCountList.get(word).toString())));
+								new Document("$push", new Document(docId, item.getInteger(word))));
 						
 					}
 					
@@ -125,8 +127,8 @@ public class RevIndexer {
 			
 		} catch (Exception e) {
 			
-			logger.error("Error from functio start()");
-			logger.error(e.getMessage());
+			logger.error("Error from function start()");
+			e.printStackTrace();
 			shutDown();
 		}
 		
