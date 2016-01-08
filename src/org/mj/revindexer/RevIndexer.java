@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 
 
+
 import com.mongodb.MongoClient;
 import com.mongodb.BasicDBList;
 import com.mongodb.Block;
@@ -53,7 +54,9 @@ public class RevIndexer {
 			
 			mongoClient = new MongoClient();
 			indexDB = mongoClient.getDatabase(INDEX_DB_NAME);
+			mongoClient.dropDatabase(REV_INDEX_DB);
 			revIndexDB = mongoClient.getDatabase(REV_INDEX_DB);
+			
 			
 			logger.info("Successfully initialized {} and {}.", INDEX_DB_NAME, REV_INDEX_DB);
 			//txnIndexDB = indexDBEnv.beginTransaction(null, null);
@@ -96,13 +99,17 @@ public class RevIndexer {
 			// For each entry
 			FindIterable<Document> iterable = indexDB.getCollection("DocId_WordCount").find();
 			
+			iterable.noCursorTimeout(true);
+			
 			iterable.forEach(new Block<Document>() {
 				
 				@Override
 				public void apply(final Document document) {
 					
 					String docId = document.getInteger("doc_id").toString();
+					logger.info(docId);
 					
+					@SuppressWarnings("unchecked")
 					ArrayList<Document> wordCountList = (ArrayList<Document>) document.get("word_count");
 					
 					
